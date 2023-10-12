@@ -1,0 +1,182 @@
+﻿@model Test1.Models.ViewModels.FlowerItemView
+
+@{
+    ViewData["Title"] = "UserDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>@Html.DisplayFor(model => model.flowerItem.Name)</h4>
+        <hr />
+        <dl class="row">
+            <dd class="col-sm-8">
+                <img src="data:image/png;base64,@Convert.ToBase64String(Model.flowerItem.Image)"
+                     style="max-width: 500px; height: auto; border-radius: 8%;" />
+            </dd>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.flowerItem.Description)
+            </dd>
+        </dl>
+    </div>
+    <div class="col-md-6">
+        @if (ViewBag.SizeItems != null && ViewBag.SizeItems.Count > 0)
+        {
+            <form id="sizeItemsForm" asp-controller="SizeItems" asp-action="Create">
+                <div class="right-half">
+                    <div class="title">
+                        Choose Your Preferred Size
+                    </div>
+                    <div class="card-container">
+                        @if (ViewBag.SizeItems != null)
+                        {
+                            foreach (var sizeItem in ViewBag.SizeItems)
+                            {
+                                var isSelected = sizeItem.Id.ToString() == ViewBag.SelectedSizeItemId;
+                                var cardClass = isSelected ? "selected-card" : "";
+                                <label class="card radio-card mb-3 @cardClass" style="max-width: 300px;" data-sizeitemid="@sizeItem.Id">
+                                    <input type="radio" name="SelectedSizeItemId" value="@sizeItem.Id" style="display: none;" />
+                                    <div class="card-body">
+                                        <h5 class="card-title">@sizeItem.Price $</h5>
+                                        <p class="card-text">
+                                            <span class="size-text">@sizeItem.Size.ToString()</span>
+                                            <span class="divider">|</span>
+                                            <span class="price-text">@sizeItem.Price $</span>
+                                        </p>
+                                        <!-- Add the input field for quantity -->
+                                        <div class="lol"></div>
+                                    </div>
+                                </label>
+                            }
+                        }
+                    </div>
+                <button  class="mega btn btn-primary mt-3">Add to cart</button>
+            </div>
+            </form>
+        }
+        else
+        {
+             <div class="right-half">
+                <div  style="margin-top:60px">
+                   <h4> There are no sizes left!</h4>
+                </div>
+                <div style="margin-top:15px">
+                    <a asp-action="Index" class="btn btn-primary">Back to List</a>
+                </div>
+             </div>
+        }
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
+
+<style>
+    /* Your existing styles */
+
+    /* New styles */
+    .right-half {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .title {
+        font-size: larger;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .card-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card {
+        background-color: initial;
+        border: none;
+        cursor: pointer;
+    }
+
+        .card:hover {
+            background-color: #f0f0f0;
+        }
+
+    .selected-card {
+        background-color: purple;
+        height: auto;
+    }
+
+    .radio-card {
+        border-radius: 8px;
+        margin-bottom: 10px;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        transition: height 0.3s ease;
+        height: 150px; /* Set a fixed height for the radio card */
+        overflow: hidden;
+    }
+
+    .item-content {
+        display: flex;
+        align-items: center;
+    }
+
+    .left-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-title {
+        font-size: small;
+        margin: 0;
+    }
+    /* End of new styles */
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".radio-card").click(function () {
+            $(".radio-card").removeClass("selected-card");
+            $(this).addClass("selected-card");
+            if ($(".selected").length === 0) {
+                $(this).addClass("selected");
+                var newInput = $("<input type='number' class='form-control quantity-input' name='Count' placeholder='Number of items' min='1' />");
+                $(this).find(".lol").append(newInput);
+                $(this).find("input[type=radio]").prop("checked", true);
+            } else {
+                if (!$(".selected").is($(this))) {
+                    $(".selected").find(".quantity-input").remove();
+                    $(".radio-card").removeClass("selected");
+                    $(this).addClass("selected");
+                    var newInput = $("<input type='number' class='form-control quantity-input' name='Count' placeholder='Number of items' min='1' />");
+                    $(this).find(".lol").append(newInput);
+                    $(this).find("input[type=radio]").prop("checked", true);
+                }
+            }
+        });
+
+        $("#sizeItemsForm").submit(function (e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            var formData = $(this).serialize(); // Serialize the form data
+
+            $.ajax({
+                type: "POST",
+                url: $(this).attr("action"), // Use the form's action attribute as the URL
+                data: formData,
+                success: function (response) {
+                    // Handle the success response here (e.g., update the UI, show a message)
+                },
+                error: function (xhr, status, error) {
+                    // Handle errors here (e.g., display an error message)
+                }
+            });
+        });
+    });
+</script>

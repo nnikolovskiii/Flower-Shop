@@ -1,0 +1,58 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item">
+        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage" style="color:white;">
+                <p style="color:white;">Hello @User.Identity?.Name!</p>
+            </a>
+    </li>
+        <li class="nav-item">
+            <form method="post" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button type="submit" class="nav-link btn btn-link text-dark">
+                    <img id="logout" src="/css/logout.png" />
+                    <span class="logout-tooltip">Logout</span>
+                </button>
+            </form>
+        </li>
+       
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+    </li>
+}
+</ul>
+
+<style>
+    
+        .navbar-dark .navbar-nav .nav-link {
+            color: white !important;
+        }
+
+    /* Position the tooltip text */
+    .logout-tooltip {
+        position: absolute;
+        display: none;
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 5px;
+        border-radius: 4px;
+        z-index: 1;
+        margin-left:-20px;
+    }
+
+    /* Show the tooltip text on hover over the image */
+    .btn:hover img + .logout-tooltip {
+        display: block;
+    }
+
+</style>

@@ -1,0 +1,349 @@
+﻿@using Microsoft.AspNetCore.Identity
+
+@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<IdentityUser> SignInManager
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - FlowerShop</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/FlowerShop.styles.css" asp-append-version="true" />
+
+    <style>
+        /* Custom styling for the navigation bar */
+        .navbar {
+            background-color: #CA9CCA
+        }
+
+        .navbar-dark .navbar-nav .nav-link {
+            color: white !important;
+        }
+
+        .nav-link .custom-nav-link {
+            color: white;
+        }
+
+        #photo {
+            width: 50px;
+            height: 50px;
+            margin-right:3px;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm .navbar-dark  border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="color:white"><img id="photo" src="/css/flower.png" /><i><b>FlowerShop</b></i></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        @if (User.IsInRole("User"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="FlowerItems" asp-action="Index" style="color:white;">Shop Flowers</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Orders" asp-action="Index" style="color:white;">My Orders</a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Orders" asp-action="Index" style="color:white;">Orders</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="FlowerItems" asp-action="Index" style="color:white;">Flowers</a>
+                            </li>
+                            
+                            
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="FlowerTypes" asp-action="Index" style="color:white;">Types</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Occasions" asp-action="Index" style="color:white;">All Occasions</a>
+                            </li>
+
+
+                        }
+
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+
+
+        </main>
+    </div>
+
+    @if (User.IsInRole("User"))
+    {
+        <img src="~/css/shopping-cart.png" class="overlay-button" id="show-overlay-button">
+        <div id="loadingSpinner" class="overlay-button" style="display: none;">
+            <div class="spinner"></div>
+        </div>
+
+
+        <div class="overlay" id="overlay">
+            <div class="overlay-content" id="overlayContent">
+                <!-- Partial view content will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Overlay button -->
+    }
+    else
+    {
+        
+    }
+
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2023 - FlowerShop - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+<style>
+    #loadingSpinner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.7); /* Semi-transparent background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999; /* Ensure it appears above other elements */
+    }
+
+    .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.3);
+        border-top: 4px solid #333; /* Spinner color */
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+    }
+
+
+
+
+    .radio-card {
+        border: 1px solid #ccc;
+        transition: background-color 0.3s;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+
+        .radio-card:hover {
+            background-color: #f5f5f5;
+        }
+
+        .radio-card.selected {
+            background-color: #d9edf7;
+        }
+
+    /* Existing styles */
+
+    .overlay-button {
+        background-color: white;
+        position: fixed;
+        top: 90px;
+        right: 0;
+        height: 50px;
+        width: 50px;
+   
+        cursor: pointer;
+        right: 0; /* Initial    position */
+        /* ... Your existing styles ... */
+        transition: background-color 0.3s, right 0.3s;
+        border-color: white;
+    }
+
+    .overlay.active + .overlay-button {
+        right: 25%; /* Move the button leftward when the overlay is active */
+    }
+
+    #show-overlay-button {
+        width: 40px;
+        height: 40px;
+        border-radius: 8%;
+    }
+
+        #show-overlay-button:hover {
+            opacity: 90%; /* Darker color with transparency */
+        }
+
+
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        right: -100%; /* Initially hidden */
+        width: 25%;
+        height: 100%;
+        background-color: #ffffff;
+        box-shadow: -5px 0px 5px rgba(0, 0, 0, 0.2);
+        transition: right 0.3s ease-in-out; /* Animation */
+        z-index: 10;
+    }
+
+        .overlay.active {
+            right: 0; /* Show the overlay */
+        }
+
+    .overlay-content {
+        width: 100%; /* Adjust the content width as needed */
+        height: 100%;
+        overflow: auto;
+        padding: 20px;
+    }
+
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+
+
+        $(".radio-card").click(function () {
+            $(".radio-card").removeClass("selected");
+            $(this).addClass("selected");
+            $(this).find("input[type=radio]").prop("checked", true);
+        });
+
+        $("#show-overlay-button").click(function () {
+            // Show loading spinner while waiting for the Ajax request
+            $("#loadingSpinner").show();
+
+            // Function to rotate the spinner
+            function rotateSpinner(degrees) {
+                $(".spinner").css({ transform: `rotate(${degrees}deg)` });
+            }
+
+            let rotation = 0; // Initial rotation
+
+            // Rotate the spinner every 100 milliseconds (adjust as needed)
+            const spinnerInterval = setInterval(function () {
+                rotation += 10; // Rotate by 10 degrees (adjust as needed)
+                rotateSpinner(rotation);
+            }, 100);
+
+            $.ajax({
+                url: '@Url.Action("GetShoppingCart", "FlowerItems")',
+                type: 'GET',
+                success: function (data) {
+                    // Stop the spinner rotation when the request is complete
+                    clearInterval(spinnerInterval);
+
+                    $("#overlayContent").html(data); // Update the content
+                    $("#overlay").toggleClass("active"); // Toggle overlay visibility
+
+                    if ($("#overlay").hasClass("active")) {
+                        $(".overlay-button").css("right", "25%"); // Move the button leftward when overlay is active
+                    } else {
+                        $(".overlay-button").css("right", "0"); // Move the button back to its original position when overlay is hidden
+                    }
+
+                    // Hide the loading spinner when the request is complete
+                    $("#loadingSpinner").hide();
+                },
+                error: function () {
+                    console.log("Error loading shopping cart.");
+
+                    // Stop the spinner rotation in case of an error
+                    clearInterval(spinnerInterval);
+
+                    // Hide the loading spinner in case of an error
+                    $("#loadingSpinner").hide();
+                }
+            });
+        });
+
+
+        $(".mega").click(function () {
+            // Show loading spinner while waiting for the Ajax request
+            $("#loadingSpinner").show();
+
+            // Function to rotate the spinner
+            function rotateSpinner(degrees) {
+                $(".spinner").css({ transform: `rotate(${degrees}deg)` });
+            }
+
+            let rotation = 0; // Initial rotation
+
+            // Rotate the spinner every 100 milliseconds (adjust as needed)
+            const spinnerInterval = setInterval(function () {
+                rotation += 10; // Rotate by 10 degrees (adjust as needed)
+                rotateSpinner(rotation);
+            }, 100);
+
+            setTimeout(function () {
+                $.ajax({
+                    url: '@Url.Action("GetShoppingCart", "FlowerItems")',
+                    type: 'GET',
+                    success: function (data) {
+                        // Stop the spinner rotation when the request is complete
+                        clearInterval(spinnerInterval);
+
+                        $("#overlayContent").html(data); // Update the content
+                        $("#overlay").toggleClass("active"); // Toggle overlay visibility
+
+                        if ($("#overlay").hasClass("active")) {
+                            $(".overlay-button").css("right", "25%"); // Move the button leftward when overlay is active
+                        } else {
+                            $(".overlay-button").css("right", "0"); // Move the button back to its original position when overlay is hidden
+                        }
+
+                        // Hide the loading spinner when the request is complete
+                        $("#loadingSpinner").hide();
+                    },
+                    error: function () {
+                        console.log("Error loading shopping cart.");
+
+                        // Stop the spinner rotation in case of an error
+                        clearInterval(spinnerInterval);
+
+                        // Hide the loading spinner in case of an error
+                        $("#loadingSpinner").hide();
+                    }
+                });
+            }, 2000); // 2000 milliseconds (2 seconds) delay
+        });
+
+
+
+        
+
+
+    });
+</script>
+

@@ -1,0 +1,44 @@
+﻿@model Test1.Models.ViewModels.FlowerTypeImageView
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>FlowerType</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="FlowerType.Name" class="control-label"></label>
+                <input asp-for="FlowerType.Name" class="form-control" />
+                <span asp-validation-for="FlowerType.Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FlowerType.Description" class="control-label"></label>
+                <textarea asp-for="FlowerType.Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="FlowerType.Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageFile" class="control-label"></label>
+                <input type="file" asp-for="ImageFile" class="form-control-file" />
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

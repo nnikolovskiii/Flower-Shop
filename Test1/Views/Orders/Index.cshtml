@@ -1,0 +1,93 @@
+﻿@model IEnumerable<Test1.Models.Order>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h3>Your Orders in the Past</h3>
+
+@if (Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                @if (User.IsInRole("Admin"))
+                {
+                    <th>
+                        @Html.DisplayNameFor(model => model.UserEmail)
+                    </th>
+                }
+
+                <th>
+                    @Html.DisplayNameFor(model => model.Street)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.City)
+                </th>
+                <th>
+                    Gift Status
+                </th>
+                <th>
+                    Delivery Status
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Message)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserEmail)
+                        </td>
+                    }
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Street)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.City)
+                    </td>
+                    <td>
+                        @if (item.IsGift)
+                        {
+                            <img src="~/css/gift.png" style="width: 35px; height: 35px;" />
+                        }
+                        else
+                        {
+                            <img src="~/css/businessman.png" style="width: 35px; height: 35px;" />
+                        }
+                    </td>
+                    <td>
+                        @if (item.IsDelivery)
+                        {
+                            <img src="~/css/house.png" style="width: 35px; height: 35px;" />
+                        }
+                        else
+                        {
+                            <img src="~/css/store.png" style="width: 35px; height: 35px;" />
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Message)
+                    </td>
+                    <td>
+                        <form asp-action="Show" asp-controller="SizeItems" method="post">
+                            <input type="hidden" name="id" value="@item.Id">
+                            <button class="btn btn-secondary">Show</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h6 class="mt-4">There is no History.</h6>
+}

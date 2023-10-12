@@ -1,0 +1,157 @@
+﻿@using Test1.Models.Enums;
+@model IEnumerable<Test1.Models.FlowerItem>
+
+@{
+    ViewData["Title"] = "UserIndex";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Side Filter -->
+            <form asp-action="Index" method="get">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Colors</h5>
+                        <div class="form-group">
+                            @foreach (var color in ViewBag.Colors)
+                            {
+                                
+                                bool isChecked = ViewBag.SelectedColors.Contains(color); // Check if the color is selected
+
+                                <div class="form-check">
+                                    <input type="checkbox" name="SelectedColors" value="@color" class="form-check-input" @if (isChecked)
+                                    {
+                                        <text>checked</text>
+                                    } />
+                                    <label class="form-check-label">@color</label>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Sizes</h5>
+                        <div class="form-group">
+                            @foreach (var size in ViewBag.Sizes)
+                            {
+                                bool isChecked = ViewBag.SelectedSizes.Contains(size);
+
+                                <div class="form-check">
+                                    <input type="checkbox" name="SelectedSizes" value="@size" class="form-check-input size-checkbox" @if (isChecked)
+                                    {
+                                        <text>checked</text>
+                                    } />
+                                    <label class="form-check-label">@size</label>
+                                    <input type="number" name="Prices" class="form-control price-input" style="display: none;" placeholder="Price" data-size="@size" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+               
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Occasions</h5>
+                        <div class="form-group">
+                            @foreach (Occasion occasion in ViewBag.Occasions)
+                            {
+                                bool isChecked = ViewBag.SelectedOccasions.Contains(occasion.Id);
+
+                                <div class="form-check">
+
+                                    <input type="checkbox" name="Occasions" value="@occasion.Id" class="form-check-input size-checkbox" @if (isChecked)
+                                    {
+                                        <text>checked</text>
+                                    } />
+                                    <label class="form-check-label">@occasion.Name</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Flower Types</h5>
+                        <div class="form-group">
+                            @foreach (FlowerType type in ViewBag.FlowerTypes)
+                            {
+                                bool isChecked = ViewBag.SelectedFlowerTypes.Contains(type.Id);
+
+                                <div class="form-check">
+
+                                    <input type="checkbox" name="FlowerTypes" value="@type.Id" class="form-check-input size-checkbox" @if (isChecked)
+                                    {
+                                        <text>checked</text>
+                                    } />
+                                    <label class="form-check-label">@type.Name</label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-4 mb-4">Apply Filters</button>
+            </form>
+        </div>
+
+        <div class="col-md-9">
+            <!-- Main Content -->
+            <div class="row">
+                @foreach (var item in Model)
+                {
+                    <div class="col-md-4 mb-4">
+                        <a href="@Url.Action("Details", new { id = item.Id })" class="card-link">
+                            <div class="card h-100 card-hover-effect">
+                                <img src="data:image/png;base64,@Convert.ToBase64String(item.Image)"
+                                     class="card-img-top" alt="@item.Name" style="max-height: 200px; object-fit: cover;">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">@item.Name</h5>
+                                    
+                                </div>
+                            </div>
+                        </a>
+
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div>
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i, pageSize = ViewBag.PageSize })">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+
+                <style>
+    .card-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .card-hover-effect {
+        transition: background-color 0.3s ease;
+    }
+
+        .card-hover-effect:hover {
+            background-color: rgba(0, 0, 0, 0.2); /* Darken color on hover */
+        }
+
+                </style>

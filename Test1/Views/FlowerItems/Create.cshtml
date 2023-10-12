@@ -1,0 +1,264 @@
+﻿@using Test1.Models.Relations;
+@model Test1.Models.ViewModels.FlowerItemImageView
+
+
+@{
+    ViewData["Title"] = "Create";
+    var isEditMode = Model.FlowerItem != null; // Check if we are in edit mode
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .scrollable-list {
+            max-height: 200px; /* Adjust the height as needed */
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>@(isEditMode ? "Edit" : "Create")</h1>
+        <h4>FlowerItem</h4>
+        <hr />
+        <div class="row">
+            <div>
+                <form asp-action="Create" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div style="margin-bottom:50px;" 
+                        class="d-flex justify-content-around align-items-center">
+                    <div style="width:400px;">
+                    <div class="form-group">
+                        <label asp-for="FlowerItem.Name" class="control-label"></label>
+                        <input asp-for="FlowerItem.Name" class="form-control" value="@((isEditMode && Model.FlowerItem != null) ? Model.FlowerItem.Name : null)" />
+                        <span asp-validation-for="FlowerItem.Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="FlowerItem.Description" class="control-label"></label>
+                        <textarea asp-for="FlowerItem.Description" class="form-control" rows="3">
+                            @(isEditMode && Model.FlowerItem != null ? Model.FlowerItem.Description : "")
+                        </textarea>
+                        <span asp-validation-for="FlowerItem.Description" class="text-danger"></span>
+                    </div>
+                    </div>
+                    <div class="form-group">
+                            @if (isEditMode)
+                            {
+                                <img src="data:image/png;base64,@Convert.ToBase64String(Model.FlowerItem.Image)"
+                                     style="max-width: 300px; height: auto;" />
+                            }
+                      
+                        <input type="file" asp-for="ImageFile" class="form-control-file" />
+                        <span asp-validation-for="ImageFile" class="text-danger"></span>
+                    </div>
+                    </div>
+                    <div class=" d-flex justify-content-around align-items-center">
+                    <div class="form-group">
+                        <label>Colors</label>
+                        @foreach (var color in Model.Colors)
+                        {
+                            @if (Model.selectedColors.Contains(color))
+                            {
+                                <div class="form-check">
+                                    <input checked type="checkbox" name="SelectedColors" value="@color" class=" size-checkbox1 form-check-input" />
+                                    <label class="form-check-label">@color</label>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="form-check">
+                                    <input type="checkbox" name="SelectedColors" value="@color" class=" size-checkbox1 form-check-input" />
+                                    <label class="form-check-label">@color</label>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div class="form-group">
+                        <label>Sizes, Prices, and Counts</label>
+                        @foreach (var size in Model.Sizes)
+                        {
+                            <div class="form-check">
+                                @{
+                                    SizeItem item = null;
+                                    List<SizeItem> items = Model.SelectedSizeItems.Where(si => si.Size.Equals(size)).ToList();
+                                    if (items.Count != 0)
+                                    {
+                                        item = items[0];
+                                    }
+                                }
+
+                                @if (item != null)
+                                {
+                                    <input checked type="checkbox" name="SelectedSizes" value="@size" class="size-checkbox1 form-check-input size-checkbox" />
+                                    <label class="form-check-label">@size</label>
+                                    <input type="number" value="@item.Price" name="Prices" class="form-control price-input" style="display: none;" placeholder="Price" data-size="@size" />
+                                    <input type="number" value="@item.Count" name="Counts" class="form-control count-input" style="display: none;" placeholder="Count" data-size="@size" />
+                                }
+                                else{
+                                    <input type="checkbox" name="SelectedSizes" value="@size" class=" size-checkbox1 form-check-input size-checkbox" />
+                                    <label class="form-check-label">@size</label>
+                                    <input type="number" name="Prices" class="form-control price-input" style="display: none;" placeholder="Price" data-size="@size" />
+                                    <input type="number" name="Counts" class="form-control count-input" style="display: none;" placeholder="Count" data-size="@size" /> 
+                                }
+                                
+                               
+                            </div>
+                        }
+                    </div>
+                    
+                    
+                    <div class="form-group">
+                        <label>Flower Types</label>
+                        <div class="scrollable-list">
+                            @foreach (FlowerType flowerType in ViewBag.FlowerTypes)
+                            {
+                                @if (Model.SelectedFlowerTypes.Any(a=>a.Id == flowerType.Id))
+                                {
+                                    <div class="form-check">
+                                        <input checked type="checkbox" name="SelectedFlowerTypes" value="@flowerType.Id" class="size-checkbox1 form-check-input flower-type-checkbox" />
+                                        <label class="form-check-label">@flowerType.Name</label>
+                                        <!-- Add additional input fields related to FlowerTypes here -->
+                                    </div>
+                                }else{
+                                <div class="form-check">
+                                    <input type="checkbox" name="SelectedFlowerTypes" value="@flowerType.Id" class="size-checkbox1 form-check-input flower-type-checkbox" />
+                                    <label class="form-check-label">@flowerType.Name</label>
+                                    <!-- Add additional input fields related to FlowerTypes here -->
+                                </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Occasions</label>
+                        <div class="scrollable-list">
+                            @foreach (Occasion occasion in ViewBag.Occasions)
+                            {
+                                @if (Model.SelectedOccasions.Any(a=>a.Id == occasion.Id))
+                                {
+                                    <div class="form-check">
+                                        <input checked type="checkbox" name="SelectedOccasions" value="@occasion.Id" class="size-checkbox1 form-check-input flower-type-checkbox" />
+                                        <label class="form-check-label">@occasion.Name</label>
+                                        <!-- Add additional input fields related to FlowerTypes here -->
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="form-check">
+                                        <input type="checkbox" name="SelectedOccasions" value="@occasion.Id" class="size-checkbox1 form-check-input flower-type-checkbox" />
+                                    <label class="form-check-label">@occasion.Name</label>
+                                    <!-- Add additional input fields related to FlowerTypes here -->
+                                </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                    </div>
+                    <!-- Hidden field to store FlowerItem ID if in edit mode -->
+                    @if (isEditMode)
+                    {
+                        <input type="hidden" name="id" asp-for="FlowerItem.Id" />
+                    }
+                    <input type="hidden" asp-for="PricesJson" name="PricesJson" id="pricesJson" />
+                    <input type="hidden" name="CountsJson" id="countsJson" />
+                    <div class="form-group">
+                        <input type="submit" value="@(isEditMode ? "Update" : "Create")" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div>
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+           
+
+
+            $('.size-checkbox:checked').each(function () {
+                var $priceField = $(this).siblings('.price-input');
+                var $countField = $(this).siblings('.count-input');
+
+
+             
+
+                if (this.checked) {
+                    $priceField.show();
+                    $countField.show();
+                } else {
+                    $priceField.hide();
+                    $countField.hide();
+                }
+            });
+
+            $('.size-checkbox1').on('change', function () {
+                // Check if the checkbox is unchecked
+                if (!this.checked) {
+                    // Display an alert when unchecked
+                    alert("Unchecking can lead to items beaing deleted!");
+                }
+                // Rest of your code...
+            });
+
+            $('.size-checkbox').on('change', function () {
+                var $priceField = $(this).siblings('.price-input');
+                var $countField = $(this).siblings('.count-input');
+
+                if (!this.checked && initialChecked[$('.size-checkbox').index(this)]) {
+                    // If it was initially checked and is now unchecked, show a warning
+                    if (!confirm('This unchecking can resolve in deletion!')) {
+                        // User canceled, recheck the checkbox
+                        this.checked = true;
+                        return;
+                    }
+                }
+
+
+
+                if (this.checked) {
+                    $priceField.show();
+                    $countField.show();
+                } else {
+                    $priceField.hide();
+                    $countField.hide();
+                }
+            });
+
+            $('form').on('submit', function () {
+                updateCountsAndPrices();
+            });
+
+            function updateCountsAndPrices() {
+                var counts = [];
+                var prices = [];
+
+                $('.size-checkbox:checked').each(function () {
+                    var $priceField = $(this).siblings('.price-input');
+                    var $countField = $(this).siblings('.count-input');
+
+                    var count = parseInt($countField.val()) || 0;
+                    var price = parseFloat($priceField.val()) || 0;
+
+                    counts.push(count);
+                    prices.push(price);
+                });
+
+                var countsJson = JSON.stringify(counts);
+                var pricesJson = JSON.stringify(prices);
+
+                $('#countsJson').val(countsJson);
+                $('#pricesJson').val(pricesJson);
+            }
+        });
+    </script>
+</body>
+</html>
